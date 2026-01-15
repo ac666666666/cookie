@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark"> <!-- Default to dark theme -->
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>AC Storage Manager</h1>
+            </div>
+            <div class="header-right">
+                <button id="langToggleBtn" title="Switch Language">
+                    <span class="text">EN/中</span>
+                </button>
+                <button id="themeToggleBtn" title="Toggle Theme">
+                    <span class="icon">🌓</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-toolbar">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="cookies" data-i18n="tabCookies">Cookies</button>
+                <button class="tab-btn" data-tab="localStorage" data-i18n="tabLocal">Local Storage</button>
+                <button class="tab-btn" data-tab="sessionStorage" data-i18n="tabSession">Session Storage</button>
+            </div>
+            
+            <div class="actions-group">
+                <button id="refreshBtn" title="Refresh Data">
+                    <span class="icon">↻</span> <span data-i18n="refresh">Refresh</span>
+                </button>
+                <button id="clearAllBtn" class="danger" title="Clear All Items">
+                    <span class="icon">🗑️</span> <span data-i18n="clearAll">Clear All</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sub-toolbar">
+            <div class="import-export-group">
+                <select id="exportFormat">
+                    <option value="json">JSON</option>
+                    <option value="header">Cookie Header String</option>
+                    <option value="netscape">Netscape Cookie File</option>
+                </select>
+                <button id="copyExportBtn" class="action-btn">
+                    <span class="icon">📋</span> <span data-i18n="copyExport">Copy Export</span>
+                </button>
+                <button id="pasteImportBtn" class="action-btn">
+                    <span class="icon">📥</span> <span data-i18n="pasteImport">Paste Import</span>
+                </button>
+            </div>
+            <div class="search-group">
+                <input type="text" id="searchInput" placeholder="Filter..." data-i18n-placeholder="searchPlaceholder">
+                <button id="addBtn" class="primary">
+                    <span class="icon">＋</span> <span data-i18n="addItem">Add Item</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="cookies" class="tab-content active">
+            <div class="table-container">
+                <table id="cookiesTable">
+                    <thead>
+                        <tr>
+                            <th width="15%" data-i18n="thDomain">Domain</th>
+                            <th width="15%" data-i18n="thName">Name</th>
+                            <th width="35%" data-i18n="thValue">Value</th>
+                            <th width="20%" data-i18n="thDetails">Details</th>
+                            <th width="15%" data-i18n="thActions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Cookies will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="localStorage" class="tab-content">
+            <div class="table-container">
+                <table id="localStorageTable">
+                    <thead>
+                        <tr>
+                            <th width="30%" data-i18n="thKey">Key</th>
+                            <th width="55%" data-i18n="thValue">Value</th>
+                            <th width="15%" data-i18n="thActions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Local Storage will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="sessionStorage" class="tab-content">
+            <div class="table-container">
+                <table id="sessionStorageTable">
+                    <thead>
+                        <tr>
+                            <th width="30%" data-i18n="thKey">Key</th>
+                            <th width="55%" data-i18n="thValue">Value</th>
+                            <th width="15%" data-i18n="thActions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Session Storage will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" data-i18n="modalEditTitle">Edit Item</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="form-row" id="domainGroup">
+                        <div class="form-group half">
+                            <label for="editDomain" data-i18n="labelDomain">Domain</label>
+                            <input type="text" id="editDomain">
+                        </div>
+                        <div class="form-group half" id="pathGroup">
+                            <label for="editPath" data-i18n="labelPath">Path</label>
+                            <input type="text" id="editPath" value="/">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editName" data-i18n="labelName">Name / Key</label>
+                        <input type="text" id="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editValue" data-i18n="labelValue">Value</label>
+                        <textarea id="editValue" required></textarea>
+                    </div>
+                    
+                    <div class="cookie-options" id="cookieOptions">
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="editSecure"> <span data-i18n="labelSecure">Secure</span></label>
+                            <label><input type="checkbox" id="editHttpOnly"> <span data-i18n="labelHttpOnly">HttpOnly</span></label>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label data-i18n="labelSameSite">SameSite</label>
+                                <select id="editSameSite">
+                                    <option value="unspecified" data-i18n="optUnspecified">Unspecified</option>
+                                    <option value="no_restriction" data-i18n="optNone">None</option>
+                                    <option value="lax" data-i18n="optLax">Lax</option>
+                                    <option value="strict" data-i18n="optStrict">Strict</option>
+                                </select>
+                            </div>
+                            <div class="form-group half">
+                                <label data-i18n="labelExpiration">Expiration</label>
+                                <input type="datetime-local" id="editExpiration">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" id="cancelEditBtn" data-i18n="btnCancel">Cancel</button>
+                        <button type="submit" class="primary" data-i18n="btnSave">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="modalImportTitle">Import Data</h2>
+                <span class="close" id="closeImportModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="hint" data-i18n="importHint">Paste your JSON, Cookie Header string, or Netscape content here:</p>
+                <textarea id="importTextarea" placeholder="Paste data here..." data-i18n-placeholder="importPlaceholder"></textarea>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelImportBtn" data-i18n="btnCancel">Cancel</button>
+                    <button type="button" class="primary" id="previewImportBtn" data-i18n="btnPreviewImport">Preview & Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Action Successful</div>
+
+    <script src="i18n.js"></script>
+    <script src="utils.js"></script>
+    <script src="confetti.js"></script>
+    <script src="panel.js"></script>
+</body>
+</html>
